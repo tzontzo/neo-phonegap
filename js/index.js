@@ -320,7 +320,9 @@ var app = {
                     }
                     var loginUsernameTemp = store.getItem('loginUsernameTemp');
                     var loginPasswordTemp = store.getItem('loginPasswordTemp');
+                    console.log('Looking for login data in local storage, loginUsernameTemp: ' + loginUsernameTemp + ', loginPasswordTemp: ' + loginPasswordTemp);
                     if (loginUsernameTemp && loginPasswordTemp) {
+                        console.log('Found login data in local storage.');
                         window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, app.storeLoginCredentials, app.fail);
                     }
                 }
@@ -425,7 +427,7 @@ var app = {
                     console.log('opening ' + data.href);
                     if (typeof data.refresh_on_close != 'undefined') {
                         newWindow.addEventListener('loadstop', function(event) {
-                            if (event.url.match(schoolDomain)) {
+                            if (event.url.startsWith(schoolProtocol + '://' + schoolDomain)) {
                                 newWindow.close();
                                 var contentFrame = document.getElementById('contentFrame');
                                 contentFrame.contentWindow.location = contentFrame.contentWindow.location.href + '&sso_native_apps_alert=false';
@@ -1014,11 +1016,11 @@ var app = {
             if (loginCredentials.length) {
                 var loginCredentialsArray = loginCredentials.split("\n");
                 if (loginCredentialsArray[0] == 'auth_token_sso') {
-                    console.log('auth token found, opening ' + currentSchool.replace('?mobile_app=true&new_ios_app=true', 'log_in/submit?auth_token=' + loginCredentialsArray[1] + '&mobile_app=true&new_ios_app=true' + (isBrandedApp ? '&branded_app=true' : '')));
-                    $('#contentFrame').attr('src', currentSchool.replace('?mobile_app=true&new_ios_app=true', 'log_in/submit?auth_token=' + loginCredentialsArray[1] + '&mobile_app=true&new_ios_app=true' + (isBrandedApp ? '&branded_app=true' : '')));
+                    console.log('auth token found, opening ' + currentSchool.replace('?mobile_app=true', 'log_in/submit?auth_token=' + loginCredentialsArray[1] + '&mobile_app=true' + (isBrandedApp ? '&branded_app=true' : '')));
+                    $('#contentFrame').attr('src', currentSchool.replace('?mobile_app=true', 'log_in/submit?auth_token=' + loginCredentialsArray[1] + '&mobile_app=true' + (isBrandedApp ? '&branded_app=true' : '')));
                 } else {
-                    console.log('loginCredentials found, opening ' + currentSchool.replace('?mobile_app=true&new_ios_app=true', 'log_in/submit?userid=' + loginCredentialsArray[0] + '&password=' + loginCredentialsArray[1] + '&mobile_app=true&new_ios_app=true' + (isBrandedApp ? '&branded_app=true' : '')));
-                    $('#contentFrame').attr('src', currentSchool.replace('?mobile_app=true&new_ios_app=true', 'log_in/submit?userid=' + loginCredentialsArray[0] + '&password=' + loginCredentialsArray[1] + '&mobile_app=true' + (isBrandedApp ? '&branded_app=true' : '')));
+                    console.log('loginCredentials found, opening ' + currentSchool.replace('?mobile_app=true', 'log_in/submit?userid=' + loginCredentialsArray[0] + '&password=' + loginCredentialsArray[1] + '&mobile_app=true' + (isBrandedApp ? '&branded_app=true' : '')));
+                    $('#contentFrame').attr('src', currentSchool.replace('?mobile_app=true', 'log_in/submit?userid=' + loginCredentialsArray[0] + '&password=' + loginCredentialsArray[1] + '&mobile_app=true' + (isBrandedApp ? '&branded_app=true' : '')));
                 }
             } else {
                 $('#contentFrame').attr('src', currentSchool);
@@ -1058,7 +1060,7 @@ var app = {
         var reader = new FileReader();
         reader.onloadend = function(evt) {
             console.log("Read as text");
-            var currentSchool = evt.target.result + '&new_ios_app=true&sso_native_apps=true';
+            var currentSchool = evt.target.result + '&sso_native_apps=true';
             console.log('currentSchool: ' + currentSchool);
             if (currentSchool.length) {
                 $.ajax(currentSchool, {
