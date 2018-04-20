@@ -710,6 +710,28 @@ var app = {
                     ssoWindow.close();
                 }
                 break;
+            case 'submitToBrowser':
+                if (typeof data.params != 'NULL') {
+                    var pageContent = '<html><head></head><body><form id="popup_form" action="' + data.url + '" method="post">';
+                    for(var i=0; i < data.params.length; i++){
+                        if(data.params[i].name != 'utf8' && data.params[i].name != 'authenticity_token'){
+                            pageContent += '<input type="hidden" name="' + data.params[i].name + '" value="' + data.params[i].value + '">';
+                        }
+                    }
+                    pageContent += '</form> <script type="text/javascript">document.getElementById("popup_form").submit();</script></body></html>';
+                    var pageContentUrl = 'data:text/html;base64,' + btoa(pageContent);
+
+                    var newWindow = window.open(pageContentUrl, '_blank', 'location=yes');
+
+                    newWindow.addEventListener('loadstop', function(event) {
+                        if (event.url.startsWith(schoolProtocol + '://' + schoolDomain)) {
+                            newWindow.close();
+                            var contentFrame = document.getElementById('contentFrame');
+                            contentFrame.contentWindow.location = event.url;
+                        }
+                    });
+                }
+                break;
             default:
                 return;
                 break;
