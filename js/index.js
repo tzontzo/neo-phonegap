@@ -47,6 +47,10 @@ var app = {
         document.addEventListener('deviceready', this.onAppLaunch, false);
         document.addEventListener('deviceready', this.onDeviceReady, false);
 
+        document.addEventListener('backbutton', function(e) {
+          e.preventDefault();
+        }, false);
+
         app.checkConnection();
     },
 
